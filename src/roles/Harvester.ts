@@ -5,24 +5,28 @@ class Harvester {
     this.creep = creep;
   }
 
-  public run() {
-    const source: Source | null = this.creep.pos.findClosestByPath(FIND_SOURCES);
-    const spawn: StructureSpawn | null = this.creep.pos.findClosestByPath(FIND_MY_SPAWNS);
+  public moveToSource(source: Source): void {
+    this.creep.moveTo(source, {
+      visualizePathStyle: {
+        stroke: '#ffffff'
+      }
+    });
+  }
 
-    const carryCapacityFull = _.sum(this.creep.carry) === this.creep.carryCapacity;
+  public run(): void {
+    const source = this.creep.pos.findClosestByPath(FIND_SOURCES);
+
+    const carryCapacityFull =
+      _.sum(this.creep.carry) === this.creep.carryCapacity;
 
     if (!carryCapacityFull) {
       if (source && this.creep.harvest(source) === ERR_NOT_IN_RANGE) {
-        this.creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
-      }
-    } else {
-      if (spawn && this.creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-        this.creep.moveTo(spawn);
+        this.moveToSource(source);
       }
     }
   }
 
-  public get memory() {
+  public get memory(): CreepMemory {
     return this.creep.memory;
   }
 }
