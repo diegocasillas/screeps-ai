@@ -13,7 +13,7 @@ class Harvester {
 
     if (!carryCapacityFull) {
       if (source && this.creep.harvest(source) === ERR_NOT_IN_RANGE) {
-        this.creep.moveTo(source);
+        this.creep.moveTo(source, { visualizePathStyle: { stroke: '#ffffff' } });
       }
     } else {
       if (spawn && this.creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
