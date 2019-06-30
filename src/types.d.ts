@@ -5,6 +5,8 @@ interface CreepMemory {
   state: {
     harvester?: string | null;
     hauler?: string | null;
+    source?: string | null;
+    target?: string | null;
   };
 }
 
