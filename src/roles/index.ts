@@ -7,7 +7,7 @@ export const roleList: any = {
     model: Harvester,
     min: 6,
     spawnProperties: {
-      body: [WORK, CARRY, MOVE],
+      body: [WORK, WORK, CARRY, MOVE],
       name: 'harvester',
       role: 'HARVESTER',
       state: { hauler: null }
@@ -27,7 +27,7 @@ export const roleList: any = {
     model: Upgrader,
     min: 10,
     spawnProperties: {
-      body: [WORK, CARRY, MOVE],
+      body: [WORK, WORK, CARRY, MOVE],
       name: 'upgrader',
       role: 'UPGRADER',
       state: {}
