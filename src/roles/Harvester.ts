@@ -7,38 +7,44 @@ class Harvester {
     this.creep = creep;
   }
 
-  public moveToSource(source: Source): void {
-    this.creep.moveTo(source, {
-      visualizePathStyle: {
-        stroke: '#ffffff'
-      }
-    });
+  private findSource(): void {
+    const source: Source | null = this.creep.pos.findClosestByPath(
+      FIND_SOURCES
+    );
+
+    if (source && source.id) {
+      this.memory.state.source = source.id;
+    } else {
+      this.memory.state.source = null;
+    }
+  }
+
+  private moveToSource(): void {
+    if (this.source) {
+      this.creep.moveTo(this.source, {
+        visualizePathStyle: {
+          stroke: '#ffffff'
+        }
+      });
+    }
   }
 
   public run(): void {
     if (!this.memory.state.source) {
-      const source: Source | null = this.creep.pos.findClosestByPath(
-        FIND_SOURCES
-      );
-
-      if (source && source.id) {
-        this.memory.state.source = source.id;
-      }
+      this.findSource();
     }
 
-    const carryCapacityFull =
-      _.sum(this.creep.carry) === this.creep.carryCapacity;
-
-    if (!carryCapacityFull) {
-      if (this.source && this.creep.harvest(this.source) === ERR_NOT_IN_RANGE) {
-        this.moveToSource(this.source);
+    if (!this.carryCapacityFull) {
+      if (this.source && this.creep.pos.isNearTo(this.source)) {
+        this.creep.harvest(this.source);
+      } else {
+        this.moveToSource();
       }
     } else {
       if (!this.hauler) {
-        if (
-          this.creep.transfer(Game.spawns.Spawn1, RESOURCE_ENERGY) ===
-          ERR_NOT_IN_RANGE
-        ) {
+        if (this.creep.pos.isNearTo(Game.spawns.Spawn1)) {
+          this.creep.transfer(Game.spawns.Spawn1, RESOURCE_ENERGY);
+        } else {
           this.creep.moveTo(Game.spawns.Spawn1);
         }
       }
@@ -47,6 +53,10 @@ class Harvester {
 
   public get memory(): CreepMemory {
     return this.creep.memory;
+  }
+
+  public get carryCapacityFull(): boolean {
+    return _.sum(this.creep.carry) === this.creep.carryCapacity;
   }
 
   public get source(): Source | null {
@@ -58,10 +68,11 @@ class Harvester {
   }
 
   public get hauler(): Hauler | null {
-    const creep: Creep | null = this.memory.state.hauler
-      ? Game.getObjectById(this.memory.state.hauler)
-      : null;
-    return creep ? new Hauler(creep) : null;
+    const hauler = global.roles.HAULER.find(
+      (h: Hauler) => h.creep.id === this.memory.state.hauler
+    );
+
+    return hauler ? hauler : null;
   }
 }
 
