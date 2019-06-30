@@ -33,6 +33,15 @@ class Harvester {
       if (this.source && this.creep.harvest(this.source) === ERR_NOT_IN_RANGE) {
         this.moveToSource(this.source);
       }
+    } else {
+      if (!this.hauler) {
+        if (
+          this.creep.transfer(Game.spawns.Spawn1, RESOURCE_ENERGY) ===
+          ERR_NOT_IN_RANGE
+        ) {
+          this.creep.moveTo(Game.spawns.Spawn1);
+        }
+      }
     }
   }
 
@@ -46,6 +55,13 @@ class Harvester {
       : null;
 
     return source;
+  }
+
+  public get hauler(): Hauler | null {
+    const creep: Creep | null = this.memory.state.hauler
+      ? Game.getObjectById(this.memory.state.hauler)
+      : null;
+    return creep ? new Hauler(creep) : null;
   }
 }
 
