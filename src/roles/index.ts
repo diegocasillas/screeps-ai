@@ -5,7 +5,7 @@ import Upgrader from './Upgrader';
 export const roleList: any = {
   HARVESTER: {
     model: Harvester,
-    min: 3,
+    min: 6,
     spawnProperties: {
       body: [WORK, CARRY, MOVE],
       name: 'harvester',
@@ -15,7 +15,7 @@ export const roleList: any = {
   },
   HAULER: {
     model: Hauler,
-    min: 3,
+    min: 6,
     spawnProperties: {
       body: [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
       name: 'hauler',
@@ -25,7 +25,7 @@ export const roleList: any = {
   },
   UPGRADER: {
     model: Upgrader,
-    min: 3,
+    min: 10,
     spawnProperties: {
       body: [WORK, CARRY, MOVE],
       name: 'upgrader',
