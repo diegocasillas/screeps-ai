@@ -2,6 +2,10 @@ interface CreepMemory {
   role: string;
   room: string;
   working?: boolean;
+  state: {
+    harvester?: string | null;
+    hauler?: string | null;
+  };
 }
 
 interface Memory {
@@ -12,5 +16,6 @@ interface Memory {
 declare namespace NodeJS {
   interface Global {
     log: any;
+    roles: any;
   }
 }

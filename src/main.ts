@@ -1,6 +1,13 @@
 import { ErrorMapper } from 'utils/ErrorMapper';
-import Harvester from './roles/Harvester';
-import Upgrader from './roles/Upgrader';
+import { roleList } from './roles';
+
+const setup = (): void => {
+  global.roles = {};
+
+  for (const role in roleList) {
+    global.roles[role] = [];
+  }
+};
 
 const deleteMissingCreeps = (): void => {
   for (const name in Memory.creeps) {
@@ -10,36 +17,45 @@ const deleteMissingCreeps = (): void => {
   }
 };
 
-export const loop = ErrorMapper.wrapLoop(() => {
-  console.log(`Current game tick is ${Game.time}`);
-  deleteMissingCreeps();
+const createSmartCreeps = (): void => {
+  for (const name in Game.creeps) {
+    const creep = Game.creeps[name];
+    const role = creep.memory.role;
+    global.roles[role].push(new roleList[role].model(creep));
+  }
+};
 
+const spawnCreeps = (): void => {
   const spawn = Game.spawns.Spawn1;
 
-  const harvesters = _.filter(
-    Game.creeps,
-    (creep: Creep) => creep.memory.role === 'HARVESTER'
-  ).map((creep: Creep) => new Harvester(creep));
-  const harvestersMinAmount = 3;
-
-  const upgraders = _.filter(
-    Game.creeps,
-    (creep: Creep) => creep.memory.role === 'UPGRADER'
-  ).map((creep: Creep) => new Upgrader(creep));
-  const upgradersMinAmount = 3;
-
-  if (harvesters.length < harvestersMinAmount) {
-    spawn.spawnCreep([WORK, MOVE, CARRY], `harvester#${Game.time}`, {
-      memory: { role: 'HARVESTER', room: spawn.room.name }
-    });
+  for (const role in roleList) {
+    if (global.roles[role].length < roleList[role].min) {
+      spawn.spawnCreep(
+        roleList[role].spawnProperties.body,
+        `${roleList[role].spawnProperties.name}#${Game.time}`,
+        {
+          memory: {
+            role: roleList[role].spawnProperties.role,
+            room: spawn.room.name,
+            state: roleList[role].spawnProperties.state
+          }
+        }
+      );
+    }
   }
+};
 
-  if (upgraders.length < upgradersMinAmount) {
-    spawn.spawnCreep([WORK, MOVE, CARRY], `upgrader#${Game.time}`, {
-      memory: { role: 'UPGRADER', room: spawn.room.name }
-    });
+const run = (): void => {
+  for (const role in global.roles) {
+    global.roles[role].forEach((creep: any) => creep.run());
   }
+};
 
-  harvesters.forEach((harvester: Harvester) => harvester.run());
-  upgraders.forEach((upgrader: Upgrader) => upgrader.run());
+export const loop = ErrorMapper.wrapLoop(() => {
+  console.log(`Current game tick is ${Game.time}`);
+  setup();
+  deleteMissingCreeps();
+  createSmartCreeps();
+  spawnCreeps();
+  run();
 });
